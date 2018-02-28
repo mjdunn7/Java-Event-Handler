@@ -36,36 +36,18 @@ public class TCPConnection {
         receiverThread.start();
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public void sendData(byte[] data) throws IOException {
-        int dataLength = data.length;
-        dout.writeInt(dataLength);
-        dout.write(data, 0, dataLength);
-        dout.flush();
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
     public class TCPReceiver implements Runnable{
         @Override
         public void run() {
             int dataLength;
             while (socket != null) {
                 try {
+                    //First byte indicates the length of the message
                     dataLength = din.readInt();
+                    //Remaining bytes are the message in ASCII.
                     byte[] data = new byte[dataLength];
                     din.readFully(data, 0, dataLength);
 
-                    //TODO: Handle incoming connection, give data to EventFactory.
                     eventFactoryReference.addEvent(new Event(data));
                 } catch (SocketException se) {
                     System.out.println(se.getMessage());
